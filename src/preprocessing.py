@@ -8,6 +8,8 @@ from __future__ import annotations
 import re
 from typing import Iterable
 
+from nltk.stem import SnowballStemmer
+
 # Набор русских и английских стоп-слов (часто встречающиеся слова,
 # не несущие смысловой нагрузки).
 _RUSSIAN_STOPWORDS: set[str] = {
@@ -42,6 +44,23 @@ _WHITESPACE_PATTERN = re.compile(r"\s+", re.UNICODE)
 
 # Кэш объединённого множества стоп-слов.
 _STOPWORDS_CACHE: set[str] | None = None
+
+# Стеммер для нормализации словоформ русского языка.
+# Приводит разные падежи/числа к основе ("сайта" -> "сайт", "сайте" -> "сайт"),
+# что критично для корректной TF-IDF векторизации русских текстов.
+_STEMMER = SnowballStemmer("russian")
+
+
+def _stem_tokens(tokens: list[str]) -> list[str]:
+    """Стеммит (нормализует) каждый токен.
+
+    Args:
+        tokens: список токенов.
+
+    Returns:
+        Список основ слов.
+    """
+    return [_STEMMER.stem(token) for token in tokens]
 
 
 def get_stopwords(remove_stopwords: bool = True) -> set[str]:
@@ -102,11 +121,17 @@ def preprocess_text(text: str, remove_stopwords_flag: bool = True) -> str:
         remove_stopwords_flag: удалять ли стоп-слова.
 
     Returns:
-        Нормализованный текст (слова через пробел).
+        Нормализованный текст (основы слов через пробел).
+
+    Примечание:
+        Стемминг нормализует словоформы (падежи/числа), что позволяет
+        вектору запроса совпадать с признаками модели, даже если слово
+        стоит в другой грамматической форме.
     """
     tokens = tokenize(text)
     if remove_stopwords_flag:
         tokens = remove_stopwords(tokens)
+    tokens = _stem_tokens(tokens)
     return " ".join(tokens)
 
 

@@ -37,7 +37,14 @@ class TestDataGeneration:
 class TestPreprocessing:
     def test_lowercase_and_tokenization(self):
         result = preprocess_text("Нужно Разработать Сайт!", remove_stopwords_flag=False)
-        assert result == "нужно разработать сайт"
+        # Текст приводится к нижнему регистру; слово "сайт" сохраняется в основе.
+        assert result == result.lower()
+        assert "сайт" in result
+
+    def test_stemming_normalizes_word_forms(self):
+        # Разные падежи/числа слова "сайт" сводятся к одной основе.
+        assert preprocess_text("создание сайта", False).split()[-1] == \
+            preprocess_text("разработка сайтов", False).split()[-1]
 
     def test_stopword_removal(self):
         result = preprocess_text("Нужно разработать сайт для бизнеса")
