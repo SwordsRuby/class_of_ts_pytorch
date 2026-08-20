@@ -1,0 +1,35 @@
+# --- Виртуальное окружение ---
+.venv/
+venv/
+env/
+ENV/
+.venv*
+
+# --- Кеши Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# --- Генерируемые артефакты обучения (модели, векторизатор) ---
+data/processed/*
+!data/processed/.gitkeep
+
+# --- Результаты обучения (отчёты, матрицы ошибок) ---
+results/*
+!results/.gitkeep
+
+# --- IDE / ОС ---
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Логи ---
+*.log
